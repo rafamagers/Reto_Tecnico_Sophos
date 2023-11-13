@@ -33,21 +33,20 @@ namespace Reto.Controllers
         }
 
         // GET: api/Curso/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Curso>> GetCurso(int id)
+        [HttpGet("obtenerPorNombre/{nombre}")]
+        public async Task<ActionResult<IEnumerable<Estudiante>>> ObtenerCursosPorNombre(string nombre)
         {
-          if (_context.Cursos == null)
-          {
-              return NotFound();
-          }
-            var curso = await _context.Cursos.FindAsync(id);
+            var cursosConNombre = _context.Cursos
+                .Where(curso => _context.Materia.Any(materia => materia.Nombre.Contains(nombre) && materia.CodigoMateria == curso.CodigoMateria))
+                .ToList();
 
-            if (curso == null)
+            if (cursosConNombre == null || cursosConNombre.Count == 0)
             {
-                return NotFound();
+                return NotFound(); // Otra respuesta adecuada si no se encuentra nada
             }
 
-            return curso;
+            return Ok(cursosConNombre);
+
         }
 
         // PUT: api/Curso/5

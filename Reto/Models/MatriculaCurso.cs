@@ -17,9 +17,5 @@ public partial class MatriculaCurso
 
     public bool? Actual { get; set; }
 
-    [ForeignKey("CodigoEstudiantil")]
-    public virtual Estudiante? CodigoEstudiantilNavigation { get; set; }
 
-    [ForeignKey("Nrc")]
-    public virtual Curso? NrcNavigation { get; set; }
 }

@@ -33,23 +33,37 @@ namespace Reto.Controllers
         }
 
         // GET: api/Estudiante/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Estudiante>> GetEstudiante(int id)
+        [HttpGet("obtenerPorNombre/{nombre}")]
+        public async Task<ActionResult<IEnumerable<Estudiante>>> ObtenerAlumnosPorNombre(string nombre)
         {
-          if (_context.Estudiantes == null)
-          {
-              return NotFound();
-          }
-            var estudiante = await _context.Estudiantes.FindAsync(id);
+            // Utiliza el método Where para filtrar los resultados por nombre
+            var alumnosConNombre =  _context.Estudiantes
+                .Where(alumno => alumno.Nombres.Contains(nombre))
+                .ToList();
 
-            if (estudiante == null)
+            if (alumnosConNombre == null || alumnosConNombre.Count == 0)
             {
-                return NotFound();
+                return NotFound(); // Otra respuesta adecuada si no se encuentra nada
             }
 
-            return estudiante;
+            return Ok(alumnosConNombre);
         }
+        // GET: api/Estudiante/5
+        [HttpGet("obtenerPorFacultad/{facultad}")]
+        public async Task<ActionResult<IEnumerable<Estudiante>>> ObtenerAlumnosPorFacultad(string facultad)
+        {
+            // Utiliza el método Where para filtrar los resultados por nombre
+            var alumnosConNombre = _context.Estudiantes
+                .Where(alumno => alumno.Facultad.Contains(facultad))
+                .ToList();
 
+            if (alumnosConNombre == null || alumnosConNombre.Count == 0)
+            {
+                return NotFound(); // Otra respuesta adecuada si no se encuentra nada
+            }
+
+            return Ok(alumnosConNombre);
+        }
         // PUT: api/Estudiante/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]

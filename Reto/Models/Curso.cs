@@ -23,11 +23,4 @@ public partial class Curso
     [Column("IDProfesor")]
     public int? Idprofesor { get; set; }
 
-    [ForeignKey("CodigoMateria")]
-    [InverseProperty("Cursos")]
-    public virtual Materium? CodigoMateriaNavigation { get; set; }
-
-    [ForeignKey("Idprofesor")]
-    [InverseProperty("Cursos")]
-    public virtual Maestro? IdprofesorNavigation { get; set; }
 }

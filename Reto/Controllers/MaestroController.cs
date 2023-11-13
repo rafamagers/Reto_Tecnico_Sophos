@@ -33,21 +33,20 @@ namespace Reto.Controllers
         }
 
         // GET: api/Maestro/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Maestro>> GetMaestro(int id)
+        [HttpGet("obtenerPorNombre/{nombre}")]
+        public async Task<ActionResult<IEnumerable<Estudiante>>> ObtenerMaestrosPorNombre(string nombre)
         {
-          if (_context.Maestros == null)
-          {
-              return NotFound();
-          }
-            var maestro = await _context.Maestros.FindAsync(id);
+            // Utiliza el método Where para filtrar los resultados por nombre
+            var MaestrosConNombre = _context.Maestros
+                .Where(Maestros => Maestros.Nombres.Contains(nombre))
+                .ToList();
 
-            if (maestro == null)
+            if (MaestrosConNombre == null || MaestrosConNombre.Count == 0)
             {
-                return NotFound();
+                return NotFound(); // Otra respuesta adecuada si no se encuentra nada
             }
 
-            return maestro;
+            return Ok(MaestrosConNombre);
         }
 
         // PUT: api/Maestro/5

@@ -49,9 +49,7 @@ public partial class AppDbContext : DbContext
 
             entity.Property(e => e.Nrc).ValueGeneratedNever();
 
-            entity.HasOne(d => d.CodigoMateriaNavigation).WithMany(p => p.Cursos).HasConstraintName("FK__Cursos__CodigoMa__6E01572D");
 
-            entity.HasOne(d => d.IdprofesorNavigation).WithMany(p => p.Cursos).HasConstraintName("FK__Cursos__IDProfes__6EF57B66");
         });
 
         modelBuilder.Entity<Estudiante>(entity =>
@@ -79,14 +77,11 @@ public partial class AppDbContext : DbContext
 
             entity.Property(e => e.CodigoMateria).ValueGeneratedNever();
 
-            entity.HasOne(d => d.MateriaPrereqNavigation).WithMany(p => p.InverseMateriaPrereqNavigation).HasConstraintName("FK__Materia__Materia__68487DD7");
         });
 
         modelBuilder.Entity<MatriculaCurso>(entity =>
         {
-            entity.HasOne(d => d.CodigoEstudiantilNavigation).WithMany().HasConstraintName("FK__Matricula__Codig__74AE54BC");
 
-            entity.HasOne(d => d.NrcNavigation).WithMany().HasConstraintName("FK__MatriculaCu__NRC__73BA3083");
         });
 
         OnModelCreatingPartial(modelBuilder);

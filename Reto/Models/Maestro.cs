@@ -31,6 +31,5 @@ public partial class Maestro
     [Unicode(false)]
     public string? Facultad { get; set; }
 
-    [InverseProperty("IdprofesorNavigation")]
-    public virtual ICollection<Curso> Cursos { get; set; } = new List<Curso>();
+
 }

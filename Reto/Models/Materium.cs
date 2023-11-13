@@ -23,13 +23,5 @@ public partial class Materium
     [Unicode(false)]
     public string? Facultad { get; set; }
 
-    [InverseProperty("CodigoMateriaNavigation")]
-    public virtual ICollection<Curso> Cursos { get; set; } = new List<Curso>();
 
-    [InverseProperty("MateriaPrereqNavigation")]
-    public virtual ICollection<Materium> InverseMateriaPrereqNavigation { get; set; } = new List<Materium>();
-
-    [ForeignKey("MateriaPrereq")]
-    [InverseProperty("InverseMateriaPrereqNavigation")]
-    public virtual Materium? MateriaPrereqNavigation { get; set; }
 }
