@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using ProyectoWebAPI.Models;
 using Reto.Models;
 
 namespace Reto.DBContext;
@@ -28,8 +29,7 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Materium> Materia { get; set; }
 
-    public virtual DbSet<MatriculaCurso> MatriculaCursos { get; set; }
-
+    public virtual DbSet<MatriculaCurso> MatriculaCurso { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=tcp:retosophos.database.windows.net,1433;Initial Catalog=InstitucionEducativa;Persist Security Info=False;User ID=ramontero;Password=Taqwerty092;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30");
@@ -81,9 +81,10 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<MatriculaCurso>(entity =>
         {
+            entity.HasKey(e => e.IdMatricula).HasName("PK__Matricul__AD06C20FBCDE4A35");
 
+            entity.Property(e => e.IdMatricula).ValueGeneratedNever();
         });
-
         OnModelCreatingPartial(modelBuilder);
     }
 

@@ -30,6 +30,8 @@ public partial class Maestro
     [StringLength(50)]
     [Unicode(false)]
     public string? Facultad { get; set; }
+    public string? NivelEducacion { get; set; }
+    public int? AñosExperiencia { get; set; }
 
 
 }

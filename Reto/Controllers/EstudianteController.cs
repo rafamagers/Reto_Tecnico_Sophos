@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -31,7 +32,79 @@ namespace Reto.Controllers
           }
             return await _context.Estudiantes.ToListAsync();
         }
+        public class CursoMateria
+        {
+            public string NombreMateria { get; set; }
+            public int Nrc { get; set; }
+            public int CuposDisponibles { get; set; }
+            public string Facultad { get; set; }
+            
+            public int NumeroCreditos { get; set; }
+        }
 
+        // GET: api/Estudiante/5
+        [HttpGet("obtenerTODAINFO/{id}")]
+        public async Task<ActionResult<IEnumerable<Estudiante>>> ObtenerINFO(int id)
+        {
+            var Estudiante = await _context.Estudiantes.FindAsync(id);
+            if (Estudiante == null)
+            {
+                return NotFound(); // Otra respuesta adecuada si no se encuentra nada
+            }
+
+            var cursos = await _context.Cursos
+                .Where(curso => _context.MatriculaCurso
+                    .Any(matricula => matricula.Nrc.Equals(curso.Nrc) && matricula.CodigoEstudiantil.Equals(Estudiante.CodigoEstudiantil)))
+                .Select(curso => new
+                {
+                    Curso = curso,
+                    Actual = _context.MatriculaCurso
+                        .Where(matricula => matricula.Nrc.Equals(curso.Nrc) && matricula.CodigoEstudiantil.Equals(Estudiante.CodigoEstudiantil))
+                        .Select(matricula => matricula.Actual)
+                        .FirstOrDefault()
+                })
+                .ToListAsync();
+            var CursoMateriaNTList = new List<CursoMateria>();
+            var CursoMateriaTList = new List<CursoMateria>();
+            foreach (var curso in cursos)
+            {
+                var materia = await _context.Materia
+                    .Where(m => m.CodigoMateria.Equals(curso.Curso.CodigoMateria))
+                    .FirstOrDefaultAsync();
+
+                if (materia != null)
+                {
+                    var cursoMateriaObj = new CursoMateria
+                    {
+                        NombreMateria = materia.Nombre,
+                        Nrc = curso.Curso.Nrc,
+                        CuposDisponibles = (int)curso.Curso.CuposDisponibles,
+                        Facultad = materia.Facultad,
+                        
+                        NumeroCreditos = (int)materia.NumeroCreditos
+                    };
+                    if (curso.Actual.Value == true)
+                    {
+                        CursoMateriaNTList.Add(cursoMateriaObj);
+                    }
+                    else
+                    {
+                        CursoMateriaTList.Add(cursoMateriaObj);
+                    }
+                }
+            }
+            var cursosConNombreConEstudiantes = new
+            {
+                Estudiante = Estudiante,
+               
+                NumCursos = cursos.Count(),
+                CursosTerminados = CursoMateriaTList,
+                CursosNoTerminados = CursoMateriaNTList
+
+            };
+
+            return Ok(cursosConNombreConEstudiantes);
+        }
         // GET: api/Estudiante/5
         [HttpGet("obtenerPorNombre/{nombre}")]
         public async Task<ActionResult<IEnumerable<Estudiante>>> ObtenerAlumnosPorNombre(string nombre)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -48,7 +49,43 @@ namespace Reto.Controllers
             return Ok(cursosConNombre);
 
         }
+        // GET: api/Curso/5
+        [HttpGet("obtenerTODAINFO/{id}")]
+        public async Task<ActionResult<IEnumerable<Object>>> ObtenerCursosPorID(int id)
+        {
+            var curso = await _context.Cursos.FindAsync(id);
+            if (curso == null)
+            {
+                return NotFound(); // Otra respuesta adecuada si no se encuentra nada
+            }
 
+            var Profesor = await _context.Maestros.FindAsync(curso.Idprofesor);
+            var Materia = _context.Materia
+                .Where(m => m.CodigoMateria.Equals(curso.CodigoMateria))
+                .FirstOrDefault();
+            var IdEstudiantes = _context.MatriculaCurso
+              .Where(matricula => matricula.Nrc.Equals(curso.Nrc))
+              .Select(matricula => matricula.CodigoEstudiantil)
+              .ToList();
+
+           
+            var estudiantes = await _context.Estudiantes
+                .Where(estudiante => IdEstudiantes.Contains(estudiante.CodigoEstudiantil))
+                .ToListAsync();
+
+
+            var cursosConNombreConEstudiantes = new
+            {
+                Curso = new { Nombre = Materia.Nombre, curso.Nrc, curso.CuposDisponibles, Materia.Facultad, Materia.MateriaPrereq, Materia.NumeroCreditos },
+                Profesor = Profesor,
+                NumEstudiantes = estudiantes.Count(),
+                Estudiantes = estudiantes
+                
+            };
+
+            return Ok(cursosConNombreConEstudiantes);
+
+        }
         // PUT: api/Curso/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
@@ -85,28 +122,39 @@ namespace Reto.Controllers
         [HttpPost]
         public async Task<ActionResult<Curso>> PostCurso(Curso curso)
         {
+
           if (_context.Cursos == null)
           {
               return Problem("Entity set 'AppDbContext.Cursos'  is null.");
           }
-            _context.Cursos.Add(curso);
-            try
+            var mat = await _context.Materia.FindAsync(curso.CodigoMateria);
+            var prof = await _context.Maestros.FindAsync(curso.Idprofesor);
+            if (mat == null || prof == null)
             {
-                await _context.SaveChangesAsync();
+                return NotFound();
             }
-            catch (DbUpdateException)
+            else
             {
-                if (CursoExists(curso.Nrc))
+                _context.Cursos.Add(curso);
+                try
                 {
-                    return Conflict();
+                    await _context.SaveChangesAsync();
                 }
-                else
+                catch (DbUpdateException)
                 {
-                    throw;
+                    if (CursoExists(curso.Nrc))
+                    {
+                        return Conflict();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
+                return CreatedAtAction("GetCurso", new { id = curso.Nrc }, curso);
             }
 
-            return CreatedAtAction("GetCurso", new { id = curso.Nrc }, curso);
+           
         }
 
         // DELETE: api/Curso/5
