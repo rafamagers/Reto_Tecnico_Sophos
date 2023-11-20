@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Protocol.Plugins;
+using ProyectoWebAPI.Models;
 using Reto.DBContext;
 using Reto.Models;
+using static Reto.Controllers.EstudianteController;
 
 namespace Reto.Controllers
 {
@@ -24,22 +27,74 @@ namespace Reto.Controllers
 
         // GET: api/Curso
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Curso>>> GetCursos()
+        public async Task<ActionResult<IEnumerable<CursoMateria>>> GetCursos()
         {
           if (_context.Cursos == null)
           {
               return NotFound();
           }
-            return await _context.Cursos.ToListAsync();
+            var cursos = await _context.Cursos.ToListAsync();
+            var CursoMateria = new List<Object>();
+            foreach (var curso in cursos)
+            {
+                var materia = await _context.Materia
+                    .Where(m => m.CodigoMateria.Equals(curso.CodigoMateria))
+                    .FirstOrDefaultAsync();
+
+                if (materia != null)
+                {
+                    var Prereq = await _context.Materia.FindAsync(materia.MateriaPrereq);
+                    var cursoMateriaObj = new CursoMateria
+                    {
+                        NombreMateria = materia.Nombre,
+                        Nrc = curso.Nrc,
+                        CuposDisponibles = (int)curso.CuposDisponibles,
+                        Facultad = materia.Facultad,
+                        Idprofe = (int)curso.Idprofesor,
+                        MateriaPrerequisito = Prereq,
+                        NumeroCreditos = (int)materia.NumeroCreditos
+                    };
+                   
+                    CursoMateria.Add(cursoMateriaObj);
+
+                }
+            }
+            return Ok(CursoMateria);
         }
 
-        // GET: api/Curso/5
+
+        // GET: api/Curso
+        [HttpGet("PorCupos/{act}")]
+        public async Task<ActionResult<IEnumerable<Curso>>> GetCursosCupo(bool act)
+        {
+            if (_context.Cursos == null)
+            {
+                return NotFound();
+            }
+            if (act)
+            {
+                var cursosdisp = await _context.Cursos
+                    .Where(curso => curso.CuposDisponibles > 0) //Seleccionar aquellos cursos con cupos disponibles
+                    .ToListAsync();
+                return cursosdisp;
+            }
+            else {
+                var cursosdisp = await _context.Cursos
+                        .Where(curso => curso.CuposDisponibles == 0) //Seleccionar aquellos cursos con cupos disponibles
+                        .ToListAsync();
+                return cursosdisp;
+            }
+            
+        }
+        // GET: api/Curso/Compiladores
+        // Metodo http para buscar cursos con un nombre especifico
         [HttpGet("obtenerPorNombre/{nombre}")]
         public async Task<ActionResult<IEnumerable<Estudiante>>> ObtenerCursosPorNombre(string nombre)
         {
-            var cursosConNombre = _context.Cursos
-                .Where(curso => _context.Materia.Any(materia => materia.Nombre.Contains(nombre) && materia.CodigoMateria == curso.CodigoMateria))
-                .ToList();
+
+            var cursosConNombre = await _context.Cursos
+                .Where(curso => _context.Materia.Any(materia => materia.Nombre.Contains(nombre) && materia.CodigoMateria == curso.CodigoMateria)) //Seleccionar aquellos cursos los cuales su materia contiene el nombre especificado
+                .ToListAsync();
 
             if (cursosConNombre == null || cursosConNombre.Count == 0)
             {
@@ -50,30 +105,34 @@ namespace Reto.Controllers
 
         }
         // GET: api/Curso/5
+        // Listar toda la información de un curso en específico
         [HttpGet("obtenerTODAINFO/{id}")]
         public async Task<ActionResult<IEnumerable<Object>>> ObtenerCursosPorID(int id)
         {
+            //Encontrar el curso con el ID
             var curso = await _context.Cursos.FindAsync(id);
             if (curso == null)
             {
                 return NotFound(); // Otra respuesta adecuada si no se encuentra nada
             }
 
+            //Encontrar el profesor asociado al curso
             var Profesor = await _context.Maestros.FindAsync(curso.Idprofesor);
+            //Encontrar la materia asociada al curso
             var Materia = _context.Materia
                 .Where(m => m.CodigoMateria.Equals(curso.CodigoMateria))
                 .FirstOrDefault();
+            //Obtener los códigos de los estudiantes matriculados en dicho curso
             var IdEstudiantes = _context.MatriculaCurso
               .Where(matricula => matricula.Nrc.Equals(curso.Nrc))
               .Select(matricula => matricula.CodigoEstudiantil)
               .ToList();
-
-           
+            //Obtener toda la información de los estudiantes con los códigos ya obtenidos
             var estudiantes = await _context.Estudiantes
                 .Where(estudiante => IdEstudiantes.Contains(estudiante.CodigoEstudiantil))
                 .ToListAsync();
 
-
+            //Expandir información del curso obteniendo información de la materia asociada
             var cursosConNombreConEstudiantes = new
             {
                 Curso = new { Nombre = Materia.Nombre, curso.Nrc, curso.CuposDisponibles, Materia.Facultad, Materia.MateriaPrereq, Materia.NumeroCreditos },
@@ -129,6 +188,7 @@ namespace Reto.Controllers
           }
             var mat = await _context.Materia.FindAsync(curso.CodigoMateria);
             var prof = await _context.Maestros.FindAsync(curso.Idprofesor);
+            //Asegurarse de crear un curso asociado a una materia y a un profesor existente
             if (mat == null || prof == null)
             {
                 return NotFound();
@@ -170,10 +230,15 @@ namespace Reto.Controllers
             {
                 return NotFound();
             }
-
+            var matriculas = _context.MatriculaCurso
+              .Where(matricula => matricula.Nrc.Equals(curso.Nrc))
+              .ToList();
+            foreach (var m in matriculas)
+            {
+                 _context.MatriculaCurso.Remove(m);
+            }
             _context.Cursos.Remove(curso);
             await _context.SaveChangesAsync();
-
             return NoContent();
         }
 

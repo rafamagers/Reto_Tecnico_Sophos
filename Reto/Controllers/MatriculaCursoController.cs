@@ -99,15 +99,21 @@ namespace Reto.Controllers
             else
             {
 
+                if (curso.CuposDisponibles > 0)
+                {
+                    _context.MatriculaCurso.Add(MatriculaCurso);
+                    curso.CuposDisponibles = curso.CuposDisponibles - 1;
 
-                _context.MatriculaCurso.Add(MatriculaCurso);
-                curso.CuposDisponibles = curso.CuposDisponibles - 1;
-
-                await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync();
 
 
 
-                return CreatedAtAction("GetMatriculaCurso", new { id = MatriculaCurso.IdMatricula }, MatriculaCurso);
+                    return CreatedAtAction("GetMatriculaCurso", new { id = MatriculaCurso.IdMatricula }, MatriculaCurso);
+                }
+                else
+                {
+                    return BadRequest();
+                }
             }
         }
 

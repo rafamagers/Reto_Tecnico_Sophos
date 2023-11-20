@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Packaging;
 using Reto.DBContext;
 using Reto.Models;
 
@@ -32,15 +33,7 @@ namespace Reto.Controllers
           }
             return await _context.Estudiantes.ToListAsync();
         }
-        public class CursoMateria
-        {
-            public string NombreMateria { get; set; }
-            public int Nrc { get; set; }
-            public int CuposDisponibles { get; set; }
-            public string Facultad { get; set; }
-            
-            public int NumeroCreditos { get; set; }
-        }
+
 
         // GET: api/Estudiante/5
         [HttpGet("obtenerTODAINFO/{id}")]
@@ -74,13 +67,15 @@ namespace Reto.Controllers
 
                 if (materia != null)
                 {
+                    var Prereq = await _context.Materia.FindAsync(materia.MateriaPrereq);
                     var cursoMateriaObj = new CursoMateria
                     {
                         NombreMateria = materia.Nombre,
                         Nrc = curso.Curso.Nrc,
                         CuposDisponibles = (int)curso.Curso.CuposDisponibles,
                         Facultad = materia.Facultad,
-                        
+                        Idprofe = (int)curso.Curso.Idprofesor,
+                        MateriaPrerequisito = Prereq,
                         NumeroCreditos = (int)materia.NumeroCreditos
                     };
                     if (curso.Actual.Value == true)
@@ -211,6 +206,16 @@ namespace Reto.Controllers
                 return NotFound();
             }
 
+            
+            var matriculas = _context.MatriculaCurso
+              .Where(matricula => matricula.CodigoEstudiantil.Equals(estudiante.CodigoEstudiantil))
+              .ToList();
+            foreach (var m in matriculas)
+            {
+                var curso = await _context.Cursos.FindAsync(m.Nrc);
+                curso.CuposDisponibles = curso.CuposDisponibles + 1;
+                _context.MatriculaCurso.Remove(m);
+            }
             _context.Estudiantes.Remove(estudiante);
             await _context.SaveChangesAsync();
 

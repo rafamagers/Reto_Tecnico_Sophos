@@ -34,7 +34,7 @@ namespace Reto.Controllers
 
         // GET: api/Maestro/5
         [HttpGet("obtenerPorNombre/{nombre}")]
-        public async Task<ActionResult<IEnumerable<Estudiante>>> ObtenerMaestrosPorNombre(string nombre)
+        public ActionResult<IEnumerable<Estudiante>> ObtenerMaestrosPorNombre(string nombre)
         {
             // Utiliza el método Where para filtrar los resultados por nombre
             var MaestrosConNombre = _context.Maestros
