@@ -22,5 +22,5 @@ public partial class Login
 
     [StringLength(50)]
     [Unicode(false)]
-    public string? TypeUser { get; set; }
+    public string TypeUser { get; set; }
 }

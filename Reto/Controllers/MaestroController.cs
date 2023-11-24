@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +13,7 @@ using Reto.Models;
 namespace Reto.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize(Roles = "Admin,Maestro")]
     [ApiController]
     public class MaestroController : ControllerBase
     {
@@ -122,7 +125,12 @@ namespace Reto.Controllers
             {
                 return NotFound();
             }
-
+            var Cursos = _context.Cursos
+                .Where(c => c.Idprofesor.Equals(maestro.CodigoMaestro))
+                .ToList();
+            foreach (var c in Cursos){
+                c.Idprofesor = null;
+            }
             _context.Maestros.Remove(maestro);
             await _context.SaveChangesAsync();
 

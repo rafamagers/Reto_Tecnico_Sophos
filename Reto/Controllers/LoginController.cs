@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Reto.DBContext;
 using Reto.Models;
 
@@ -14,125 +18,59 @@ namespace Reto.Controllers
     [ApiController]
     public class LoginController : ControllerBase
     {
-        private readonly AppDbContext _context;
-
-        public LoginController(AppDbContext context)
+        private readonly AppDbContext _appDbContext;
+        public LoginController(AppDbContext appDbContext)
         {
-            _context = context;
+            _appDbContext = appDbContext;
         }
-
-        // GET: api/Login
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Login>>> GetLogins()
+        // /api/Login/Autorizar
+        [HttpPost("Autorizar")]
+        public async Task<IActionResult> PostLogin([FromBody] Login log)
         {
-          if (_context.Logins == null)
-          {
-              return NotFound();
-          }
-            return await _context.Logins.ToListAsync();
-        }
-
-        // GET: api/Login/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Login>> GetLogin(string id)
-        {
-          if (_context.Logins == null)
-          {
-              return NotFound();
-          }
-            var login = await _context.Logins.FindAsync(id);
-
-            if (login == null)
-            {
-                return NotFound();
-            }
-
-            return login;
-        }
-
-        // PUT: api/Login/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutLogin(string id, Login login)
-        {
-            if (id != login.Email)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(login).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!LoginExists(id))
+                var consulta = await _appDbContext.Logins.Where(x => x.Email == log.Email && x.Password == log.Password).FirstAsync();
+                if (consulta != null)
                 {
-                    return NotFound();
+                    var email = log.Email;
+                    var typ = log.TypeUser;
+                    var token = generartoken(email, typ);
+                    return Ok(token);
                 }
                 else
                 {
-                    throw;
+                    return Unauthorized();
                 }
             }
-
-            return NoContent();
-        }
-
-        // POST: api/Login
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Login>> PostLogin(Login login)
-        {
-          if (_context.Logins == null)
-          {
-              return Problem("Entity set 'AppDbContext.Logins'  is null.");
-          }
-            _context.Logins.Add(login);
-            try
+            catch (Exception ex)
             {
-                await _context.SaveChangesAsync();
+                return Ok(ex.Message);
             }
-            catch (DbUpdateException)
+            string generartoken(string email, string typ)
             {
-                if (LoginExists(login.Email))
+                //header-firma
+                var header = new JwtHeader(
+                    new SigningCredentials(
+                        new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes("TAQWERTYUIOP092ALADDIN")),
+                        SecurityAlgorithms.HmacSha256));
+                //Payload
+                var claimss = new Claim[]
                 {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
+                new Claim(JwtRegisteredClaimNames.UniqueName, email),
+                new Claim(ClaimTypes.Role,typ),
+                new Claim("Valor", "SalonDeClase")
+                };
+                var payloadd = new JwtPayload(
+                    claims: claimss,
+                    notBefore: DateTime.Now,
+                    expires: DateTime.UtcNow.AddHours(1),
+                    issuer: "https://localhost:7063/",
+                    audience: "https://localhost:7063/");
+                var token = new JwtSecurityToken(header, payloadd);
+                return new JwtSecurityTokenHandler().WriteToken(token);
             }
-
-            return CreatedAtAction("GetLogin", new { id = login.Email }, login);
         }
 
-        // DELETE: api/Login/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteLogin(string id)
-        {
-            if (_context.Logins == null)
-            {
-                return NotFound();
-            }
-            var login = await _context.Logins.FindAsync(id);
-            if (login == null)
-            {
-                return NotFound();
-            }
-
-            _context.Logins.Remove(login);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool LoginExists(string id)
-        {
-            return (_context.Logins?.Any(e => e.Email == id)).GetValueOrDefault();
-        }
     }
 }

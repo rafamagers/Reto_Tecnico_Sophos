@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,10 +16,11 @@ namespace Reto.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin,Maestro")]
     public class EstudianteController : ControllerBase
     {
         private readonly AppDbContext _context;
-
+        
         public EstudianteController(AppDbContext context)
         {
             _context = context;
@@ -59,14 +62,16 @@ namespace Reto.Controllers
                 .ToListAsync();
             var CursoMateriaNTList = new List<CursoMateria>();
             var CursoMateriaTList = new List<CursoMateria>();
+            int creditos = 0;
             foreach (var curso in cursos)
             {
                 var materia = await _context.Materia
                     .Where(m => m.CodigoMateria.Equals(curso.Curso.CodigoMateria))
                     .FirstOrDefaultAsync();
-
+               
                 if (materia != null)
                 {
+                    creditos = (int)(creditos + materia.NumeroCreditos);
                     var Prereq = await _context.Materia.FindAsync(materia.MateriaPrereq);
                     var cursoMateriaObj = new CursoMateria
                     {
@@ -93,6 +98,7 @@ namespace Reto.Controllers
                 Estudiante = Estudiante,
                
                 NumCursos = cursos.Count(),
+                CreditosMatriculados= creditos,
                 CursosTerminados = CursoMateriaTList,
                 CursosNoTerminados = CursoMateriaNTList
 

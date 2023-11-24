@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "6QUnKQkn45L1TPhk41phX6RPKIMmBaR92R1nzP4mjd7I3pxsFdVE4q6leqJsNJXx4hdrxdyDAHqM+9BQl4EqeA==",
+  "dgSpecHash": "8wB4CD09jRY82F366oWCZ2ft2EGsCjuDIW48sgf4zRiBIIf4qEdpkSBgnasDLHDUdo1Kiu4ykeMiEmglrCAtuQ==",
   "success": true,
   "projectFilePath": "C:\\Users\\rafae\\source\\repos\\Reto_Tecnico_Sophos\\Reto\\Reto.csproj",
   "expectedPackageFiles": [
@@ -59,6 +59,7 @@
     "C:\\Users\\rafae\\.nuget\\packages\\messagepack\\2.1.152\\messagepack.2.1.152.nupkg.sha512",
     "C:\\Users\\rafae\\.nuget\\packages\\messagepack.annotations\\2.1.152\\messagepack.annotations.2.1.152.nupkg.sha512",
     "C:\\Users\\rafae\\.nuget\\packages\\messagepackanalyzer\\2.1.152\\messagepackanalyzer.2.1.152.nupkg.sha512",
+    "C:\\Users\\rafae\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\6.0.25\\microsoft.aspnetcore.authentication.jwtbearer.6.0.25.nupkg.sha512",
     "C:\\Users\\rafae\\.nuget\\packages\\microsoft.aspnetcore.razor.language\\6.0.0\\microsoft.aspnetcore.razor.language.6.0.0.nupkg.sha512",
     "C:\\Users\\rafae\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\5.0.0\\microsoft.bcl.asyncinterfaces.5.0.0.nupkg.sha512",
     "C:\\Users\\rafae\\.nuget\\packages\\microsoft.build\\17.3.2\\microsoft.build.17.3.2.nupkg.sha512",

@@ -17,7 +17,7 @@ public partial class Materium
 
     public int? MateriaPrereq { get; set; }
 
-    public int? NumeroCreditos { get; set; }
+    public int NumeroCreditos { get; set; }
 
     [StringLength(50)]
     [Unicode(false)]

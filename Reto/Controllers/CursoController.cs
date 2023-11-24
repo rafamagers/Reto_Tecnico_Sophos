@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,7 @@ namespace Reto.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    
     public class CursoController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -25,7 +27,10 @@ namespace Reto.Controllers
             _context = context;
         }
 
+
+
         // GET: api/Curso
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CursoMateria>>> GetCursos()
         {
@@ -50,7 +55,7 @@ namespace Reto.Controllers
                         Nrc = curso.Nrc,
                         CuposDisponibles = (int)curso.CuposDisponibles,
                         Facultad = materia.Facultad,
-                        Idprofe = (int)curso.Idprofesor,
+                        Idprofe = (int?)curso.Idprofesor,
                         MateriaPrerequisito = Prereq,
                         NumeroCreditos = (int)materia.NumeroCreditos
                     };
@@ -64,6 +69,7 @@ namespace Reto.Controllers
 
 
         // GET: api/Curso
+        [Authorize]
         [HttpGet("PorCupos/{act}")]
         public async Task<ActionResult<IEnumerable<Curso>>> GetCursosCupo(bool act)
         {
@@ -88,6 +94,7 @@ namespace Reto.Controllers
         }
         // GET: api/Curso/Compiladores
         // Metodo http para buscar cursos con un nombre especifico
+        [Authorize]
         [HttpGet("obtenerPorNombre/{nombre}")]
         public async Task<ActionResult<IEnumerable<Estudiante>>> ObtenerCursosPorNombre(string nombre)
         {
@@ -107,6 +114,7 @@ namespace Reto.Controllers
         // GET: api/Curso/5
         // Listar toda la información de un curso en específico
         [HttpGet("obtenerTODAINFO/{id}")]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<Object>>> ObtenerCursosPorID(int id)
         {
             //Encontrar el curso con el ID
@@ -145,6 +153,7 @@ namespace Reto.Controllers
             return Ok(cursosConNombreConEstudiantes);
 
         }
+        [Authorize(Roles = "Admin,Maestro")]
         // PUT: api/Curso/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
@@ -178,6 +187,7 @@ namespace Reto.Controllers
 
         // POST: api/Curso
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize(Roles = "Admin,Maestro")]
         [HttpPost]
         public async Task<ActionResult<Curso>> PostCurso(Curso curso)
         {
@@ -219,6 +229,7 @@ namespace Reto.Controllers
 
         // DELETE: api/Curso/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteCurso(int id)
         {
             if (_context.Cursos == null)
