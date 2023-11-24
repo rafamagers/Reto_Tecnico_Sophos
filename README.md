@@ -1,50 +1,46 @@
-# Reto_Tecnico_Sophos
-Reto técnico hecho la tencología .Net Core usando Visual Studio. Implementando un backend que maneje datos básicos de una institución educativa
+# Reto Técnico Sophos
 
-Herramientas Usadas:
+Este es un proyecto de reto técnico desarrollado en tecnología .NET Core utilizando Visual Studio. La aplicación implementa un backend diseñado para gestionar datos básicos de una institución educativa.
 
-Visual Studio
+## Herramientas Utilizadas
 
-PostMan
+- Visual Studio
+- Postman
+- Docker
+- Swagger
 
-Docker
+## Requisitos para la Ejecución
 
-Swagger
+- .NET (Versión mínima 6.0)
 
-Requerimientos para ejecución:
-.NET (Versión mínima 6.0)
+## Pasos de Ejecución
 
-Pasos de ejecución:
-En la ruta del proyecto .net:
+1. En la ruta del proyecto .NET, ejecutar los siguientes comandos:
+   ```bash
+   dotnet restore
+   dotnet build
+   dotnet run
+   ```
 
-Ejecutar dotnet restore
-luego dotnet build
-y por último dotnet run
+## Configuración de la Base de Datos
 
-La base de datos está ahora mismo en Azure SQL Database por lo que se necesita permiso de IP
-Por lo que si quiere probarla localmente deberá usar el SCRIPT de creación y población de la base de datos y cambiar las conexiones en la app para poder usarla
+La base de datos se encuentra actualmente en Azure SQL Database, por lo que se requiere permisos de IP. Si desea probarla localmente, utilice el SCRIPT de creación y población de la base de datos y actualice las conexiones en la aplicación.
 
+## Peticiones y Autenticación
 
-Las peticiones se escuchan desde el puerto 7119
+Las peticiones se escuchan en el puerto 7119. Inicie autenticándose utilizando el endpoint de Login con la siguiente URL:
+[https://localhost:7119/api/Login/Autorizar](https://localhost:7119/api/Login/Autorizar)
 
-Puede empezar autenticandose usando Login con la siguiente URL:
-https://localhost:7119/api/Login/Autorizar
+## Características Implementadas
 
-Caracterísitcas implementadas:
-• listar los cursos ofrecidos mostrando su nombre, nombre del curso prerrequisito, número
-de créditos y cupos disponibles.
-• listar los alumnos matriculados mostrando nombre, facultad a la que pertenece y más información.
-• listar los profesores, mostrando nombre, máximo titulo académico, años de experiencia
-en docencia y nombre del curso o de los cursos que dicta.
-• Agregar nuevos cursos, alumnos y/o profesores.
-• Actualizar información de cursos, alumnos y/o profesores.
-• Eliminar cursos, alumnos y/o profesores.
-• Buscar curso, alumno y/o docente por nombre.
-• Buscar curso por estado de cupos (si tiene o no cupos disponibles)
-• Buscar alumnos por facultad a la que pertenece.
-• Seleccionar un curso y mostrar la información de este (nombre, número de estudiantes
-inscritos, profesor que dicta el curso, cantidad de créditos, entre otro) además un listado
-de los alumnos que están cursando dicha asignatura.
-• Seleccionar un Alumno y mostrar la información de este (nombre, número de créditos
-inscritos, semestre que cursa, entre otros datos que considere relevantes) además un
-listado de los cursos que tiene matriculados y un listado de las asignaturas que ya cursó.
+- Listar los cursos ofrecidos, mostrando su nombre, nombre del curso prerrequisito, número de créditos y cupos disponibles.
+- Listar los alumnos matriculados, mostrando nombre, facultad a la que pertenece y más información.
+- Listar los profesores, mostrando nombre, máximo título académico, años de experiencia en docencia y nombre del curso o de los cursos que dicta.
+- Agregar nuevos cursos, alumnos y/o profesores.
+- Actualizar información de cursos, alumnos y/o profesores.
+- Eliminar cursos, alumnos y/o profesores.
+- Buscar curso, alumno y/o docente por nombre.
+- Buscar curso por estado de cupos (si tiene o no cupos disponibles).
+- Buscar alumnos por facultad a la que pertenece.
+- Seleccionar un curso y mostrar la información de este (nombre, número de estudiantes inscritos, profesor que dicta el curso, cantidad de créditos, entre otros), además de un listado de los alumnos que están cursando dicha asignatura.
+- Seleccionar un alumno y mostrar la información de este (nombre, número de créditos inscritos, semestre que cursa, entre otros datos relevantes), además de un listado de los cursos que tiene matriculados y un listado de las asignaturas que ya cursó.
