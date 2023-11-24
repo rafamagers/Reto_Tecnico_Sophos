@@ -109,7 +109,7 @@ namespace Reto.Controllers
                 }
             }
 
-            return CreatedAtAction("GetMaestro", new { id = maestro.CodigoMaestro }, maestro);
+            return StatusCode(201);
         }
 
         // DELETE: api/Maestro/5

@@ -132,7 +132,12 @@ namespace Reto.Controllers
             {
                 return NotFound();
             }
-
+            var curso = await _context.Cursos.FindAsync(matriculaCurso.Nrc);
+            if (curso == null)
+            {
+                return NotFound();
+            }
+            curso.CuposDisponibles = curso.CuposDisponibles + 1;
             _context.MatriculaCurso.Remove(matriculaCurso);
             await _context.SaveChangesAsync();
 

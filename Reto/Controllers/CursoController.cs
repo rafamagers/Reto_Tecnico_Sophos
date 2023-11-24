@@ -221,10 +221,10 @@ namespace Reto.Controllers
                         throw;
                     }
                 }
-                return CreatedAtAction("GetCurso", new { id = curso.Nrc }, curso);
+                return StatusCode(201);
             }
 
-           
+
         }
 
         // DELETE: api/Curso/5

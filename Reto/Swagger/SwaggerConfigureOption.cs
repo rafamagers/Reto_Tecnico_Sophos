@@ -12,7 +12,6 @@ namespace Reto.Swagger
         public void Configure(SwaggerGenOptions options)
         {
             options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Institución Educativa (Reto Sophos)", Version = "v1" });
-
             // Configuración para autenticación JWT
             var securityScheme = new Microsoft.OpenApi.Models.OpenApiSecurityScheme
             {

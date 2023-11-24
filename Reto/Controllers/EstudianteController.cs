@@ -34,7 +34,39 @@ namespace Reto.Controllers
           {
               return NotFound();
           }
-            return await _context.Estudiantes.ToListAsync();
+          var estudiantes = await _context.Estudiantes.ToListAsync();
+          var Estud = new List<Object>();
+            foreach (var estudy in estudiantes)
+            {
+                var cursos = await _context.Cursos
+                     .Where(curso => _context.MatriculaCurso
+                         .Any(matricula => matricula.Nrc.Equals(curso.Nrc) && matricula.CodigoEstudiantil.Equals(estudy.CodigoEstudiantil)))
+                     .ToListAsync();
+                int creditos = 0;
+               
+                foreach (var curso in cursos)
+                {
+                    var materia = await _context.Materia
+                        .Where(m => m.CodigoMateria.Equals(curso.CodigoMateria))
+                        .FirstOrDefaultAsync();
+                    if (materia != null)
+                    {
+                        creditos = (int)(creditos + materia.NumeroCreditos);
+                    }
+                }
+                var cursosConNombreConEstudiantes = new
+                {
+                    Estudiante = estudy,
+                    NumCursosMatriculados = cursos.Count(),
+                    CreditosMatriculados = creditos
+
+                };
+                Estud.Add(cursosConNombreConEstudiantes);
+
+           
+            }
+         
+            return Ok(Estud);
         }
 
 
@@ -195,7 +227,7 @@ namespace Reto.Controllers
                 }
             }
 
-            return CreatedAtAction("GetEstudiante", new { id = estudiante.CodigoEstudiantil }, estudiante);
+            return StatusCode(201);
         }
 
         // DELETE: api/Estudiante/5
